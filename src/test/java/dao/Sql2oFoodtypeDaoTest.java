@@ -108,6 +108,15 @@ public class Sql2oFoodtypeDaoTest {
         assertEquals(0, foodtypeDao.getAllRestaurantsForAFoodtype(testFoodtype.getId()).size());
     }
 
+    @Test
+    public void findById() {
+        Foodtype testFoodtype  = new Foodtype("Seafood");
+        foodtypeDao.add(testFoodtype);
+        Foodtype altFoodtype = new Foodtype("Mexican");
+        foodtypeDao.add(altFoodtype);
+        assertEquals("Seafood", foodtypeDao.findById(testFoodtype.getId()).getName());
+    }
+
     //helper
     private Foodtype setupFoodtype() {
         return new Foodtype("Mexican");
