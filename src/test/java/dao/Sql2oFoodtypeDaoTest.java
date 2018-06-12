@@ -1,6 +1,7 @@
 package dao;
 
 import models.Foodtype;
+import models.Restaurant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,8 +72,52 @@ public class Sql2oFoodtypeDaoTest {
         assertEquals(0, foodtypeDao.getAll().size());
     }
 
+    @Test
+    public void addFoodTypeToRestaurantAddsTypeCorrectly() {
+        Restaurant testRestaurant = setupRestaurant();
+        Restaurant altRestaurant = setupAltRestaurant();
+        restaurantDao.add(testRestaurant);
+        restaurantDao.add(altRestaurant);
+        Foodtype testFoodtype = setupFoodtype();
+        foodtypeDao.add(testFoodtype);
+        foodtypeDao.addFoodtypeToRestaurant(testFoodtype, testRestaurant);
+        foodtypeDao.addFoodtypeToRestaurant(testFoodtype, altRestaurant);
+        assertEquals(2, foodtypeDao.getAllRestaurantsForAFoodtype(testFoodtype.getId()).size());
+    }
+
+    @Test
+    public void deleteingFoodtypeAlsoUpdatesJoinTable() throws Exception {
+        Foodtype testFoodtype  = new Foodtype("Seafood");
+        foodtypeDao.add(testFoodtype);
+
+        Restaurant testRestaurant = setupRestaurant();
+        restaurantDao.add(testRestaurant);
+
+        Restaurant altRestaurant = setupAltRestaurant();
+        restaurantDao.add(altRestaurant);
+
+        Foodtype altFoodtype = new Foodtype("Mexican");
+        foodtypeDao.add(altFoodtype);
+
+        foodtypeDao.addFoodtypeToRestaurant(testFoodtype,testRestaurant);
+        foodtypeDao.addFoodtypeToRestaurant(altFoodtype,testRestaurant);
+        foodtypeDao.addFoodtypeToRestaurant(testFoodtype,altRestaurant);
+        foodtypeDao.addFoodtypeToRestaurant(altFoodtype,altRestaurant);
+
+        foodtypeDao.deleteById(testFoodtype.getId());
+        assertEquals(0, foodtypeDao.getAllRestaurantsForAFoodtype(testFoodtype.getId()).size());
+    }
+
     //helper
     private Foodtype setupFoodtype() {
         return new Foodtype("Mexican");
+    }
+
+    private Restaurant setupRestaurant() {
+        return new Restaurant("Fish Witch", "214 NE Broadway", "97232", "503-402-9874", "http://fishwitch.com", "hellofishy@fishwitch.com");
+    }
+
+    private Restaurant setupAltRestaurant() {
+        return new Restaurant("Knee Burger", "214 NE Broadway", "97232", "503-402-9874", "http://fishwitch.com", "hellofishy@fishwitch.com");
     }
 }
